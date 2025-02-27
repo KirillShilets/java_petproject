@@ -1,15 +1,29 @@
 package org.myproject.entity;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
+import jakarta.persistence.*;
+import jakarta.validation.constraints.Max;
+import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.NotNull;
 import org.myproject.entity.enums.Color;
 
 @Entity
+@Table(name = "socks")
 public class Socks {
     @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
+    @NotNull
     private Color color;
+
+    @Column(name = "cotton_part")
+    @Min(0)
+    @Max(100)
+    @NotNull
     private int cottonPart;
+
+    @Min(1)
+    @NotNull
     private int quantity;
 
     public Socks() {}
