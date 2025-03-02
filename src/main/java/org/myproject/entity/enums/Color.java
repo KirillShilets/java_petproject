@@ -1,5 +1,5 @@
 package org.myproject.entity.enums;
 
 public enum Color {
-    BLACK, WHITE, GREEN, YELLOW, BLUE, RED, PURPLE;
+    black, yellow, white, green, blue, red, purple, orange, pink,
 }
