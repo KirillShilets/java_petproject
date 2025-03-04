@@ -3,12 +3,15 @@ package org.myproject.controller;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import jakarta.annotation.PostConstruct;
 import jakarta.validation.Valid;
+import org.myproject.dto.GetAllSocksResponseDto;
 import org.myproject.dto.SocksDto;
 import org.myproject.entity.Socks;
 import org.myproject.entity.enums.Color;
 import org.myproject.service.SocksService;
 import org.myproject.service.enums.Operation;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
 import org.springframework.web.bind.annotation.*;
 
@@ -34,8 +37,8 @@ public class SocksController {
     }
 
     @GetMapping("/socks/all")
-    public List<Socks> getSocks() {
-        return socksService.getSocks();
+    public int getSocks() {
+        return socksService.getSocks().size();
     }
 
     @GetMapping("/socks/{id}")
@@ -54,7 +57,14 @@ public class SocksController {
     }
 
     @GetMapping("/socks")
-    public List<Socks> getSocksWithParams(@RequestParam Color color, @RequestParam Operation operation, @RequestParam Integer cottonPart) {
-        return socksService.getSocksWithParams(color,operation,cottonPart);
+    public ResponseEntity<GetAllSocksResponseDto> getSocksWithParams
+            (@RequestParam Color color, @RequestParam Operation operation, @RequestParam Integer cottonPart) {
+        try {
+            int socksCount = socksService.getSocksWithParams(color, operation, cottonPart);
+            return ResponseEntity.ok().body(new GetAllSocksResponseDto(HttpStatus.OK.value(), "Успешно!", socksCount));
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.internalServerError().body(new GetAllSocksResponseDto(HttpStatus.INTERNAL_SERVER_ERROR.value(), e.getMessage()));
+        }
     }
 }

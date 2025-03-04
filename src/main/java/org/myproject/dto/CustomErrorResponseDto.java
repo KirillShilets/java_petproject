@@ -1,11 +1,11 @@
 package org.myproject.dto;
 
-public class CustomErrorResponse {
+public class CustomErrorResponseDto {
     private int code;
     private String error;
     private String message;
 
-    public CustomErrorResponse(int code, String error, String message) {
+    public CustomErrorResponseDto(int code, String error, String message) {
         this.code = code;
         this.error = error;
         this.message = message;
