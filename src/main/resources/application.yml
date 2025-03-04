@@ -4,6 +4,9 @@ spring:
     username: user_socks
     password: 123456
     driver-class-name: org.postgresql.Driver
+  web:
+    resources:
+      add-mappings: false
   jpa:
     hibernate:
       ddl-auto: create-drop
