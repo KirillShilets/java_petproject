@@ -1,29 +1,32 @@
 package org.myproject.exception.handler;
 
 import com.fasterxml.jackson.databind.JsonMappingException;
-import org.myproject.dto.CustomErrorResponse;
+import org.myproject.dto.CustomErrorResponseDto;
+import org.myproject.exception.AdvancedRuntimeException;
+import org.springframework.context.annotation.Bean;
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.validation.FieldError;
+import org.springframework.web.HttpRequestMethodNotSupportedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
-import org.springframework.web.bind.annotation.ControllerAdvice;
-import org.springframework.web.bind.annotation.ExceptionHandler;
-import org.springframework.web.bind.annotation.ResponseBody;
-import org.springframework.web.bind.annotation.ResponseStatus;
+import org.springframework.web.bind.MissingServletRequestParameterException;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
+import org.springframework.web.servlet.NoHandlerFoundException;
 
-@ControllerAdvice
+@RestControllerAdvice
 public class GlobalExceptionHandler {
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
-    @ResponseBody
-    public ResponseEntity<CustomErrorResponse> handleValidationExceptions(MethodArgumentNotValidException ex) {
+    public ResponseEntity<CustomErrorResponseDto> handleValidationExceptions(MethodArgumentNotValidException ex) {
         FieldError fieldError = ex.getBindingResult().getFieldError();
         String errorMessage = fieldError.getDefaultMessage();
 
-        CustomErrorResponse errorResponse = new CustomErrorResponse(
-                400,
+        CustomErrorResponseDto errorResponse = new CustomErrorResponseDto(
+                HttpStatus.BAD_REQUEST.value(),
                 "Bad Request",
                 errorMessage
         );
@@ -33,8 +36,7 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(HttpMessageNotReadableException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
-    @ResponseBody
-    public ResponseEntity<CustomErrorResponse> handleHttpMessageNotReadable(HttpMessageNotReadableException ex) {
+    public ResponseEntity<CustomErrorResponseDto> handleHttpMessageNotReadable(HttpMessageNotReadableException ex) {
         String errorMessage;
         String fieldName = null;
 
@@ -54,12 +56,81 @@ public class GlobalExceptionHandler {
             errorMessage = "Ошибка в формате запроса.";
         }
 
-        CustomErrorResponse errorResponse = new CustomErrorResponse(
-                400,
+        CustomErrorResponseDto errorResponse = new CustomErrorResponseDto(
+                HttpStatus.BAD_REQUEST.value(),
                 "Bad Request",
                 errorMessage
         );
 
         return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler(MissingServletRequestParameterException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public ResponseEntity<CustomErrorResponseDto> handleMissingServletRequestParameterException(MissingServletRequestParameterException ex) {
+        CustomErrorResponseDto errorResponse = new CustomErrorResponseDto(
+                HttpStatus.BAD_REQUEST.value(),
+                "Bad Request",
+                "Ошибка в теле запроса."
+        );
+        return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler(MethodArgumentTypeMismatchException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public ResponseEntity<CustomErrorResponseDto> handleMethodArgumentTypeMismatchException(MethodArgumentTypeMismatchException ex) {
+        CustomErrorResponseDto errorResponse = new CustomErrorResponseDto(
+                HttpStatus.BAD_REQUEST.value(),
+                "Bad Request",
+                "Ошибка в параметрах URL."
+        );
+
+        return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler(NoHandlerFoundException.class)
+    @ResponseStatus(HttpStatus.NOT_FOUND)
+    public ResponseEntity<CustomErrorResponseDto> handleNotFoundException(NoHandlerFoundException ex) {
+        CustomErrorResponseDto errorResponse = new CustomErrorResponseDto(
+                HttpStatus.NOT_FOUND.value(),
+                "Not Found",
+                "Такого пути не существует."
+        );
+
+        return new ResponseEntity<>(errorResponse, HttpStatus.NOT_FOUND);
+    }
+
+    @ExceptionHandler(AdvancedRuntimeException.class)
+    public ResponseEntity<CustomErrorResponseDto> handleAdvancedRuntimeException(AdvancedRuntimeException ex) {
+        CustomErrorResponseDto errorResponse = new CustomErrorResponseDto(
+                ex.getCode(),
+                ex.getMessage(),
+                ex.getError()
+        );
+
+        return new ResponseEntity<>(errorResponse, HttpStatus.valueOf(ex.getCode()));
+    }
+
+    @ExceptionHandler(EmptyResultDataAccessException.class)
+    @ResponseStatus(HttpStatus.NOT_FOUND)
+    public ResponseEntity<CustomErrorResponseDto> handleEmptyResultDataAccessException(EmptyResultDataAccessException ex) {
+        CustomErrorResponseDto errorResponse = new CustomErrorResponseDto(
+                HttpStatus.NOT_FOUND.value(),
+                "Not Found",
+                "Ничего не найдено."
+        );
+
+        return new ResponseEntity<>(errorResponse, HttpStatus.NOT_FOUND);
+    }
+
+    @ExceptionHandler(HttpRequestMethodNotSupportedException.class)
+    @ResponseStatus(HttpStatus.METHOD_NOT_ALLOWED)
+    public ResponseEntity<CustomErrorResponseDto> handleMethodNotAllowed(HttpRequestMethodNotSupportedException ex) {
+        CustomErrorResponseDto error = new CustomErrorResponseDto(
+                HttpStatus.METHOD_NOT_ALLOWED.value(),
+                "Method Not Allowed",
+                "Запрашиваемый URL не существует или метод HTTP не поддерживается."
+        );
+        return new ResponseEntity<>(error, HttpStatus.METHOD_NOT_ALLOWED);
     }
 }
