@@ -1,5 +1,6 @@
 package org.myproject.service;
 
+import org.myproject.dto.DeleteSocksResponseDto;
 import org.myproject.dto.SocksDto;
 import org.myproject.entity.Socks;
 import org.myproject.entity.enums.Color;
@@ -10,10 +11,9 @@ import org.myproject.service.specification.SocksSpecification;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.data.jpa.domain.Specification;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.util.List;
 
 @Service
 public class SocksService {
@@ -21,12 +21,16 @@ public class SocksService {
     @Autowired
     private ISocksRepository socksRepository;
 
-    public List<Socks> getSocks() {
-        return socksRepository.findAll();
+    public int getSocks() {
+        return socksRepository.findAll().size();
     }
 
     public Socks getSocksById(Long id) {
-        return socksRepository.findById(id).orElse(null);
+        Socks socks = socksRepository.findById(id).orElse(null);
+        if (socks == null) {
+            throw new EmptyResultDataAccessException(0);
+        }
+        return socks;
     }
 
     @Transactional
@@ -38,20 +42,22 @@ public class SocksService {
             socksEntity.setQuantity(socks.getQuantity());
             return socksRepository.save(socksEntity).getId();
         } catch (Exception e) {
-            throw new AdvancedRuntimeException(500,"Ошибка сервера", e.getMessage());
+            throw new AdvancedRuntimeException(500, "Ошибка сервера", e.getMessage());
         }
 
     }
 
     @Transactional
-    public String deleteSocksById(Long id) {
+    public DeleteSocksResponseDto deleteSocksById(Long id) {
+        if (!socksRepository.existsById(id)) {
+            throw new AdvancedRuntimeException(404, "Запись не найдена", "Таких носков не существует");
+        }
+
         try {
             socksRepository.deleteById(id);
-            return "Носки успешно удалены.";
-        } catch (EmptyResultDataAccessException e) {
-            return "Носки с указанным id: " + id + "не найдены";
+            return new DeleteSocksResponseDto("Носки успешно удалены", HttpStatus.OK.value());
         } catch (Exception e) {
-            throw new AdvancedRuntimeException(500,"Ошибка сервера", e.getMessage());
+            throw new AdvancedRuntimeException(500, "Ошибка сервера", e.getMessage());
         }
     }
 

@@ -3,6 +3,7 @@ package org.myproject.controller;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import jakarta.annotation.PostConstruct;
 import jakarta.validation.Valid;
+import org.myproject.dto.DeleteSocksResponseDto;
 import org.myproject.dto.GetAllSocksResponseDto;
 import org.myproject.dto.SocksDto;
 import org.myproject.entity.Socks;
@@ -15,12 +16,10 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
-
 @RestController
 @RequestMapping("/api")
 public class SocksController {
-    
+
     private final SocksService socksService;
     private final MappingJackson2HttpMessageConverter mappingJackson2HttpMessageConverter;
 
@@ -38,11 +37,11 @@ public class SocksController {
 
     @GetMapping("/socks/all")
     public int getSocks() {
-        return socksService.getSocks().size();
+        return socksService.getSocks();
     }
 
     @GetMapping("/socks/{id}")
-    public Socks getSocks(@PathVariable Long id) {
+    public Socks getSocksById(@PathVariable Long id) {
         return socksService.getSocksById(id);
     }
 
@@ -52,8 +51,8 @@ public class SocksController {
     }
 
     @DeleteMapping("/socks/outcome/{id}")
-    public String deleteSocksById(@PathVariable Long id) {
-        return socksService.deleteSocksById(id);
+    public ResponseEntity<DeleteSocksResponseDto> deleteSocksById(@PathVariable Long id) {
+        return ResponseEntity.ok(socksService.deleteSocksById(id));
     }
 
     @GetMapping("/socks")
@@ -63,7 +62,6 @@ public class SocksController {
             int socksCount = socksService.getSocksWithParams(color, operation, cottonPart);
             return ResponseEntity.ok().body(new GetAllSocksResponseDto(HttpStatus.OK.value(), "Успешно!", socksCount));
         } catch (Exception e) {
-            e.printStackTrace();
             return ResponseEntity.internalServerError().body(new GetAllSocksResponseDto(HttpStatus.INTERNAL_SERVER_ERROR.value(), e.getMessage()));
         }
     }
