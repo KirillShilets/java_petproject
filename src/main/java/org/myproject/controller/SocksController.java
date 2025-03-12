@@ -3,6 +3,8 @@ package org.myproject.controller;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import jakarta.annotation.PostConstruct;
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.Max;
+import jakarta.validation.constraints.Min;
 import org.myproject.dto.DeleteSocksResponseDto;
 import org.myproject.dto.GetAllSocksResponseDto;
 import org.myproject.dto.SocksDto;
@@ -14,10 +16,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api")
+@Validated
 public class SocksController {
 
     private final SocksService socksService;
@@ -57,7 +61,7 @@ public class SocksController {
 
     @GetMapping("/socks")
     public ResponseEntity<GetAllSocksResponseDto> getSocksWithParams
-            (@RequestParam Color color, @RequestParam Operation operation, @RequestParam Integer cottonPart) {
+            (@RequestParam Color color, @RequestParam Operation operation, @RequestParam @Min(0) @Max(100) Integer cottonPart) {
         try {
             int socksCount = socksService.getSocksWithParams(color, operation, cottonPart);
             return ResponseEntity.ok().body(new GetAllSocksResponseDto(HttpStatus.OK.value(), "Успешно!", socksCount));
