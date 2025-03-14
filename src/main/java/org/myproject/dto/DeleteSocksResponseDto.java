@@ -9,6 +9,8 @@ public class DeleteSocksResponseDto {
         this.code = code;
     }
 
+    public DeleteSocksResponseDto() {}
+
     public String getMessage() {
         return message;
     }

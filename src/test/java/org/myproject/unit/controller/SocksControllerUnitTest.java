@@ -1,4 +1,4 @@
-package controller;
+package org.myproject.unit.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeEach;

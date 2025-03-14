@@ -16,6 +16,8 @@ public class GetAllSocksResponseDto {
         this.message = message;
     }
 
+    public GetAllSocksResponseDto() {}
+
     public String getMessage() {
         return message;
     }

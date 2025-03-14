@@ -11,6 +11,8 @@ public class CustomErrorResponseDto {
         this.message = message;
     }
 
+    public CustomErrorResponseDto() {}
+
     public int getCode() {
         return code;
     }

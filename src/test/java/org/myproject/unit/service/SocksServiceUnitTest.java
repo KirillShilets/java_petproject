@@ -1,4 +1,4 @@
-package service;
+package org.myproject.unit.service;
 
 import org.junit.jupiter.api.Test;
 import org.myproject.Application;
